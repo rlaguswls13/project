@@ -49,6 +49,18 @@ export async function getLatestRetrospective(period: 'DAILY' | 'WEEKLY'): Promis
   return response.json();
 }
 
+export async function syncGithub(): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/api/sync/github`, {
+    method: 'POST'
+  });
+
+  if (!response.ok) {
+    throw new Error('GitHub sync request failed.');
+  }
+
+  return response.text();
+}
+
 export function formatActivityTime(value: string) {
   return new Intl.DateTimeFormat('ko-KR', {
     hour: '2-digit',

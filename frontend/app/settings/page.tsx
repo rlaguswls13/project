@@ -1,7 +1,8 @@
 const settings = [
   ['GitHub repo', 'via environment variables'],
   ['GitHub token', 'APP_GITHUB_TOKEN'],
-  ['Copilot SDK', 'APP_COPILOT_* variables']
+  ['Copilot SDK bridge', 'APP_COPILOT_ENABLED, APP_COPILOT_SDK_URL, APP_COPILOT_MODEL'],
+  ['Copilot sidecar', 'COPILOT_GITHUB_TOKEN, COPILOT_CLI_URL (optional)']
 ];
 
 export default function SettingsPage() {

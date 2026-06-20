@@ -1,4 +1,16 @@
 services:
+  copilot-sdk:
+    build:
+      context: ../copilot-sdk-service
+    environment:
+      PORT: ${COPILOT_SDK_PORT:-3001}
+      COPILOT_DEFAULT_MODEL: ${COPILOT_DEFAULT_MODEL:-auto}
+      COPILOT_CLI_URL: ${COPILOT_CLI_URL:-}
+      COPILOT_GITHUB_TOKEN: ${COPILOT_GITHUB_TOKEN:-}
+    ports:
+      - '3001:3001'
+    restart: unless-stopped
+
   backend:
     build:
       context: ../backend
@@ -7,11 +19,12 @@ services:
       APP_GITHUB_REPO: ${APP_GITHUB_REPO:-}
       APP_GITHUB_TOKEN: ${APP_GITHUB_TOKEN:-}
       APP_COPILOT_ENABLED: ${APP_COPILOT_ENABLED:-false}
-      APP_COPILOT_BASE_URL: ${APP_COPILOT_BASE_URL:-}
-      APP_COPILOT_API_KEY: ${APP_COPILOT_API_KEY:-}
-      APP_COPILOT_MODEL: ${APP_COPILOT_MODEL:-copilot-summarizer}
+      APP_COPILOT_SDK_URL: ${APP_COPILOT_SDK_URL:-http://copilot-sdk:3001}
+      APP_COPILOT_MODEL: ${APP_COPILOT_MODEL:-auto}
     ports:
       - '8080:8080'
+    depends_on:
+      - copilot-sdk
     restart: unless-stopped
 
   frontend:

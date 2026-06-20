@@ -58,17 +58,23 @@ a {
   font-size: 0.78rem;
 }
 
-h1,
 h2,
 p {
   margin-top: 0;
 }
 
-h1 {
+.hero h1 {
   font-size: clamp(2.8rem, 7vw, 5.4rem);
   line-height: 0.95;
   max-width: 10ch;
   margin-bottom: 16px;
+}
+
+.standalonePanel h1 {
+  font-size: clamp(1.9rem, 5.2vw, 3.4rem);
+  line-height: 1.08;
+  max-width: 18ch;
+  margin-bottom: 12px;
 }
 
 .heroCopy {
@@ -156,6 +162,55 @@ time,
 .panelHeader {
   align-items: center;
   margin-bottom: 16px;
+}
+
+.panelActions,
+.syncControl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panelActions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.syncControl {
+  justify-content: flex-end;
+}
+
+.syncButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  color: #06150f;
+  background: var(--accent);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.syncButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.syncButton:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.syncStatus {
+  max-width: 180px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.syncError {
+  color: #ffb4a8;
 }
 
 .panelHeader h2,
@@ -250,7 +305,8 @@ time,
     grid-template-columns: 1fr;
   }
 
-  h1 {
+  .hero h1,
+  .standalonePanel h1 {
     max-width: none;
   }
 }
@@ -270,5 +326,11 @@ time,
   .activityRow,
   .settingRow {
     flex-direction: column;
+  }
+
+  .panelActions,
+  .syncControl {
+    align-items: flex-start;
+    justify-content: flex-start;
   }
 }

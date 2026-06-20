@@ -68,9 +68,8 @@ public class AppProperties {
 
     public static class Copilot {
         private boolean enabled = false;
-        private String baseUrl = "";
-        private String apiKey = "";
-        private String model = "copilot-summarizer";
+        private String sdkUrl = "http://localhost:3001";
+        private String model = "auto";
 
         public boolean isEnabled() {
             return enabled;
@@ -80,20 +79,12 @@ public class AppProperties {
             this.enabled = enabled;
         }
 
-        public String getBaseUrl() {
-            return baseUrl;
+        public String getSdkUrl() {
+            return sdkUrl;
         }
 
-        public void setBaseUrl(String baseUrl) {
-            this.baseUrl = baseUrl;
-        }
-
-        public String getApiKey() {
-            return apiKey;
-        }
-
-        public void setApiKey(String apiKey) {
-            this.apiKey = apiKey;
+        public void setSdkUrl(String sdkUrl) {
+            this.sdkUrl = sdkUrl;
         }
 
         public String getModel() {

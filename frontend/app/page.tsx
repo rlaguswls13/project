@@ -1,4 +1,5 @@
 import { countBySource, formatActivityTime, getActivities, getLatestRetrospective } from '../lib/api';
+import { GitHubSyncButton } from './GitHubSyncButton';
 
 export default async function HomePage() {
   const [activities, dailyRetrospective] = await Promise.all([
@@ -31,7 +32,10 @@ export default async function HomePage() {
         <article className="panel">
           <div className="panelHeader">
             <h2>Today&apos;s activity</h2>
-            <a href="/weekly">Weekly view</a>
+            <div className="panelActions">
+              <GitHubSyncButton />
+              <a href="/weekly">Weekly view</a>
+            </div>
           </div>
           <div className="activityList">
             {activities.length > 0 ? (
