@@ -23,7 +23,11 @@ export type Retrospective = {
   createdAt: string;
 };
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080';
+// On the server (SSR) use the internal absolute URL so the frontend container can
+// reach the backend over the docker network. In the browser use a relative base so
+// requests go to the same origin, where nginx proxies /api -> backend.
+const SERVER_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8080';
+const API_BASE_URL = typeof window === 'undefined' ? SERVER_API_BASE_URL : '';
 
 export async function getActivities(): Promise<Activity[]> {
   const response = await fetch(`${API_BASE_URL}/api/activities`, {
