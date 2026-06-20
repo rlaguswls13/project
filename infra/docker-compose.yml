@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: ../backend
+    environment:
+      APP_GITHUB_OWNER: ${APP_GITHUB_OWNER:-}
+      APP_GITHUB_REPO: ${APP_GITHUB_REPO:-}
+      APP_GITHUB_TOKEN: ${APP_GITHUB_TOKEN:-}
+      APP_COPILOT_ENABLED: ${APP_COPILOT_ENABLED:-false}
+      APP_COPILOT_BASE_URL: ${APP_COPILOT_BASE_URL:-}
+      APP_COPILOT_API_KEY: ${APP_COPILOT_API_KEY:-}
+      APP_COPILOT_MODEL: ${APP_COPILOT_MODEL:-copilot-summarizer}
+    ports:
+      - '8080:8080'
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://backend:8080}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - '80:80'
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped

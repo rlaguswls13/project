@@ -1,0 +1,67 @@
+name: cd-azure-vm
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Ensure VM exists
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          AZURE_LOCATION: ${{ secrets.AZURE_LOCATION }}
+          VM_ADMIN_USERNAME: ${{ secrets.VM_ADMIN_USERNAME }}
+        run: |
+          chmod +x infra/scripts/provision-vm.sh
+          RESOURCE_GROUP="$AZURE_RESOURCE_GROUP" \
+          LOCATION="$AZURE_LOCATION" \
+          ADMIN_USERNAME="$VM_ADMIN_USERNAME" \
+          infra/scripts/provision-vm.sh
+
+      - name: Resolve VM public IP
+        id: vm
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          VM_NAME: retrospective-vm
+        run: |
+          VM_IP=$(az vm list-ip-addresses \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$VM_NAME" \
+            --query "[0].virtualMachine.network.publicIpAddresses[0].ipAddress" \
+            -o tsv)
+          echo "ip=$VM_IP" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VM_ADMIN_SSH_PRIVATE_KEY }}" > ~/.ssh/retrospective_vm
+          chmod 600 ~/.ssh/retrospective_vm
+
+      - name: Deploy to VM
+        env:
+          REMOTE_HOST: ${{ steps.vm.outputs.ip }}
+          REMOTE_USER: ${{ secrets.VM_ADMIN_USERNAME }}
+        run: |
+          chmod +x infra/scripts/deploy.sh
+          ssh-keyscan -H "$REMOTE_HOST" >> ~/.ssh/known_hosts
+          SSH_KEY_PATH="$HOME/.ssh/retrospective_vm" \
+          REMOTE_HOST="$REMOTE_HOST" \
+          REMOTE_USER="$REMOTE_USER" \
+          infra/scripts/deploy.sh
+
+      - name: Health check
+        env:
+          HEALTH_URL: http://${{ steps.vm.outputs.ip }}
+        run: |
+          curl --fail --retry 10 --retry-delay 6 "$HEALTH_URL/actuator/health"
