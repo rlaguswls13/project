@@ -20,7 +20,10 @@ public class RuleBasedSummaryClient implements SummaryClient {
                     "No activity collected for " + period.name().toLowerCase(Locale.ROOT) + " " + dateKey,
                     "No blockers captured.",
                     "Connect the GitHub repo/token and run synchronization.",
-                    0.25
+                    0.25,
+                    "RULE_BASED_FALLBACK",
+                    "local-title-frequency",
+                    "Copilot SDK was unavailable or disabled, so local title-frequency rules generated this retrospective."
             );
         }
 
@@ -45,7 +48,15 @@ public class RuleBasedSummaryClient implements SummaryClient {
         nextActions.add("Prepare follow-up on the top activity source: " + topSource(activities));
 
         double confidence = Math.min(0.95, 0.45 + (activities.size() * 0.05));
-        return new SummaryResult(whatDid, blockerText, String.join("; ", nextActions), confidence);
+        return new SummaryResult(
+            whatDid,
+            blockerText,
+            String.join("; ", nextActions),
+            confidence,
+            "RULE_BASED_FALLBACK",
+            "local-title-frequency",
+            "Copilot SDK was unavailable or disabled, so local title-frequency rules generated this retrospective."
+        );
     }
 
     private List<String> detectBlockers(List<String> titles) {

@@ -57,7 +57,10 @@ public class CopilotSummaryClient implements SummaryClient {
                 stringValue(response.whatDid(), ""),
                 stringValue(response.blockers(), ""),
                 stringValue(response.nextActions(), ""),
-                response.confidence() == null ? 0.5 : response.confidence()
+            response.confidence() == null ? 0.5 : response.confidence(),
+            "COPILOT_SDK",
+            appProperties.getCopilot().getModel(),
+            "OpenAI Java SDK via the configured Copilot-compatible endpoint"
         );
     }
 

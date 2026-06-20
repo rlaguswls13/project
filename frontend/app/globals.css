@@ -123,6 +123,28 @@ time,
   background: linear-gradient(180deg, rgba(134, 247, 208, 0.14), rgba(12, 23, 41, 0.9));
 }
 
+.statusBadge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border-radius: 999px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sdkBadge {
+  color: #06150f;
+  background: var(--accent);
+}
+
+.fallbackBadge {
+  color: #1e1304;
+  background: var(--accent-2);
+}
+
 .panelHeader,
 .activityRow,
 .settingRow {
@@ -179,6 +201,35 @@ time,
   display: block;
   font-size: 1.6rem;
   margin-top: 8px;
+}
+
+.sdkDetailPanel {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.sdkDetailPanel>div {
+  display: grid;
+  gap: 4px;
+}
+
+.sdkDetailPanel span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.sdkDetailPanel strong,
+.sdkDetailPanel p {
+  overflow-wrap: anywhere;
+}
+
+.sdkDetailPanel p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .standalonePanel {

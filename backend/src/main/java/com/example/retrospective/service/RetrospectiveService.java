@@ -44,6 +44,9 @@ public class RetrospectiveService {
         retrospective.setBlockers(summary.blockers());
         retrospective.setNextActions(summary.nextActions());
         retrospective.setConfidence(summary.confidence());
+        retrospective.setGenerationProvider(summary.generationProvider());
+        retrospective.setGenerationModel(summary.generationModel());
+        retrospective.setGenerationDetail(summary.generationDetail());
         retrospective.setCreatedAt(Instant.now());
         return retrospectiveRepository.save(retrospective);
     }

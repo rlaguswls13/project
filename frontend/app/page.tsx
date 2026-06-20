@@ -5,6 +5,8 @@ export default async function HomePage() {
     getActivities(),
     getLatestRetrospective('DAILY')
   ]);
+  const generationProvider = dailyRetrospective?.generationProvider ?? 'UNKNOWN';
+  const isCopilotSdk = generationProvider === 'COPILOT_SDK';
 
   return (
     <main className="shell">
@@ -57,6 +59,9 @@ export default async function HomePage() {
 
         <aside className="panel accentPanel">
           <p className="eyebrow">Latest daily retrospective</p>
+          <div className={isCopilotSdk ? 'statusBadge sdkBadge' : 'statusBadge fallbackBadge'}>
+            {isCopilotSdk ? 'Copilot SDK generated' : 'Rule-based fallback'}
+          </div>
           <h2>{dailyRetrospective?.dateKey ?? 'No daily record yet'}</h2>
           <p>{dailyRetrospective?.summary ?? 'Generate a daily retrospective from the backend API to populate this panel.'}</p>
           <div className="miniGrid">
@@ -68,6 +73,17 @@ export default async function HomePage() {
               <span>Confidence</span>
               <strong>{dailyRetrospective ? dailyRetrospective.confidence.toFixed(2) : '0.00'}</strong>
             </div>
+          </div>
+          <div className="sdkDetailPanel">
+            <div>
+              <span>Generation path</span>
+              <strong>{generationProvider}</strong>
+            </div>
+            <div>
+              <span>Model or engine</span>
+              <strong>{dailyRetrospective?.generationModel ?? 'not recorded'}</strong>
+            </div>
+            <p>{dailyRetrospective?.generationDetail ?? 'Generate a new retrospective to record Copilot SDK metadata.'}</p>
           </div>
         </aside>
       </section>

@@ -17,6 +17,9 @@ export type Retrospective = {
   blockers: string;
   nextActions: string;
   confidence: number;
+  generationProvider?: string | null;
+  generationModel?: string | null;
+  generationDetail?: string | null;
   createdAt: string;
 };
 

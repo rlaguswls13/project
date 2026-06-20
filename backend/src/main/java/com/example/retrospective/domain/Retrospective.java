@@ -41,6 +41,15 @@ public class Retrospective {
     @Column(nullable = false)
     private double confidence;
 
+    @Column(length = 80)
+    private String generationProvider;
+
+    @Column(length = 160)
+    private String generationModel;
+
+    @Lob
+    private String generationDetail;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -98,6 +107,30 @@ public class Retrospective {
 
     public void setConfidence(double confidence) {
         this.confidence = confidence;
+    }
+
+    public String getGenerationProvider() {
+        return generationProvider;
+    }
+
+    public void setGenerationProvider(String generationProvider) {
+        this.generationProvider = generationProvider;
+    }
+
+    public String getGenerationModel() {
+        return generationModel;
+    }
+
+    public void setGenerationModel(String generationModel) {
+        this.generationModel = generationModel;
+    }
+
+    public String getGenerationDetail() {
+        return generationDetail;
+    }
+
+    public void setGenerationDetail(String generationDetail) {
+        this.generationDetail = generationDetail;
     }
 
     public Instant getCreatedAt() {
