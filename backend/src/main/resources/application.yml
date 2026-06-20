@@ -38,9 +38,9 @@ app:
     token: ${APP_GITHUB_TOKEN:}
   copilot:
     enabled: ${APP_COPILOT_ENABLED:false}
-    base-url: ${APP_COPILOT_BASE_URL:}
-    api-key: ${APP_COPILOT_API_KEY:}
-    model: ${APP_COPILOT_MODEL:copilot-summarizer}
+    base-url: ${APP_COPILOT_BASE_URL:https://models.github.ai/inference}
+    api-key: ${APP_COPILOT_API_KEY:${COPILOT_SDK_API_KEY:}}
+    model: ${APP_COPILOT_MODEL:openai/gpt-4.1-mini}
   retrospective:
     zone: ${APP_TIME_ZONE:Asia/Seoul}
   seed:
