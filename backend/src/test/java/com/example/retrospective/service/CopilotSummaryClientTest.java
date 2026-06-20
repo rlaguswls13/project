@@ -59,7 +59,7 @@ class CopilotSummaryClientTest {
         CopilotSummaryClient client = new CopilotSummaryClient(properties, new ObjectMapper(), RestClient.builder().build());
         SummaryClient.SummaryResult result = client.summarize(List.of(), RetrospectivePeriod.DAILY, "2026-06-20");
 
-        assertThat(result.generationProvider()).isEqualTo("COPILOT_SDK_SERVICE");
+        assertThat(result.generationProvider()).isEqualTo("COPILOT_SDK");
         assertThat(result.generationModel()).isEqualTo("gpt-4.1");
         assertThat(result.whatDid()).isEqualTo("Implemented sync");
         assertThat(result.blockers()).isEqualTo("None");

@@ -49,6 +49,19 @@ export async function getLatestRetrospective(period: 'DAILY' | 'WEEKLY'): Promis
   return response.json();
 }
 
+export function formatActivityTime(value: string) {
+  return new Intl.DateTimeFormat('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Seoul'
+  }).format(new Date(value));
+}
+
+export function countBySource(activities: Activity[], source: Activity['source']) {
+  return activities.filter((activity) => activity.source === source).length;
+}
+
 export async function syncGithub(): Promise<string> {
   const response = await fetch(`${API_BASE_URL}/api/sync/github`, {
     method: 'POST'
@@ -61,15 +74,14 @@ export async function syncGithub(): Promise<string> {
   return response.text();
 }
 
-export function formatActivityTime(value: string) {
-  return new Intl.DateTimeFormat('ko-KR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-    timeZone: 'Asia/Seoul'
-  }).format(new Date(value));
-}
+export async function generateRetrospective(period: 'DAILY' | 'WEEKLY'): Promise<Retrospective> {
+  const response = await fetch(`${API_BASE_URL}/api/retrospectives/generate?period=${period}`, {
+    method: 'POST'
+  });
 
-export function countBySource(activities: Activity[], source: Activity['source']) {
-  return activities.filter((activity) => activity.source === source).length;
+  if (!response.ok) {
+    throw new Error('Retrospective generation request failed.');
+  }
+
+  return response.json();
 }

@@ -37,5 +37,11 @@
   "java.configuration.updateBuildConfiguration": "interactive",
   "java.import.gradle.enabled": true,
   "java.import.maven.enabled": true,
-  "terminal.integrated.defaultProfile.windows": "PowerShell"
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "chat.tools.terminal.autoApprove": {
+    "/^npm --prefix c:\\\\Users\\\\rlagu\\\\project\\\\frontend run dev$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
 }

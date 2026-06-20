@@ -1,5 +1,6 @@
 import { countBySource, formatActivityTime, getActivities, getLatestRetrospective } from '../lib/api';
 import { GitHubSyncButton } from './GitHubSyncButton';
+import { GenerateRetrospectiveButton } from './GenerateRetrospectiveButton';
 
 export default async function HomePage() {
   const [activities, dailyRetrospective] = await Promise.all([
@@ -68,6 +69,7 @@ export default async function HomePage() {
           </div>
           <h2>{dailyRetrospective?.dateKey ?? 'No daily record yet'}</h2>
           <p>{dailyRetrospective?.summary ?? 'Generate a daily retrospective from the backend API to populate this panel.'}</p>
+          <GenerateRetrospectiveButton period="DAILY" />
           <div className="miniGrid">
             <div>
               <span>Blockers</span>

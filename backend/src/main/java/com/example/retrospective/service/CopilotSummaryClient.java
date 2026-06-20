@@ -3,8 +3,9 @@ package com.example.retrospective.service;
 import com.example.retrospective.config.AppProperties;
 import com.example.retrospective.domain.Activity;
 import com.example.retrospective.domain.RetrospectivePeriod;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -31,17 +32,14 @@ public class CopilotSummaryClient implements SummaryClient {
 
         String content = invokeCopilotSdk(PromptFactory.buildPrompt(activities, period, dateKey));
 
-        CopilotJsonResponse response = parseResponse(content);
-        if (response == null) {
-            throw new IllegalStateException("Copilot summary service returned no payload");
-        }
+        JsonNode response = parseResponse(content);
 
         return new SummaryResult(
-                stringValue(response.whatDid(), ""),
-                stringValue(response.blockers(), ""),
-                stringValue(response.nextActions(), ""),
-                response.confidence() == null ? 0.5 : response.confidence(),
-                "COPILOT_SDK_SERVICE",
+                coerceText(response.get("whatDid")),
+                coerceText(response.get("blockers")),
+                coerceText(response.get("nextActions")),
+                coerceConfidence(response.get("confidence")),
+                "COPILOT_SDK",
                 appProperties.getCopilot().getModel(),
                 "GitHub Copilot SDK sidecar service"
         );
@@ -60,20 +58,117 @@ public class CopilotSummaryClient implements SummaryClient {
         return response.content();
     }
 
-    private CopilotJsonResponse parseResponse(String content) {
+    private JsonNode parseResponse(String content) {
+        String json = extractJsonObject(content);
         try {
-            return objectMapper.readValue(content, CopilotJsonResponse.class);
+            JsonNode node = objectMapper.readTree(json);
+            if (node == null || !node.isObject()) {
+                throw new IllegalStateException("Copilot summary service returned a non-object payload");
+            }
+            return node;
+        } catch (IllegalStateException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new IllegalStateException("Copilot summary service returned invalid JSON", ex);
         }
     }
 
-    private static String stringValue(Object value, String fallback) {
-        return value == null ? fallback : value.toString();
+    /**
+     * Copilot responses often wrap the JSON in markdown fences and add prose before or after it.
+     * Extract the first balanced {...} object so the payload can be parsed reliably.
+     */
+    private static String extractJsonObject(String content) {
+        int start = content.indexOf('{');
+        if (start < 0) {
+            throw new IllegalStateException("Copilot summary service returned no JSON object");
+        }
+        int depth = 0;
+        boolean inString = false;
+        boolean escaped = false;
+        for (int i = start; i < content.length(); i++) {
+            char c = content.charAt(i);
+            if (inString) {
+                if (escaped) {
+                    escaped = false;
+                } else if (c == '\\') {
+                    escaped = true;
+                } else if (c == '"') {
+                    inString = false;
+                }
+                continue;
+            }
+            if (c == '"') {
+                inString = true;
+            } else if (c == '{') {
+                depth++;
+            } else if (c == '}') {
+                depth--;
+                if (depth == 0) {
+                    return content.substring(start, i + 1);
+                }
+            }
+        }
+        throw new IllegalStateException("Copilot summary service returned an unbalanced JSON object");
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record CopilotJsonResponse(String whatDid, String blockers, String nextActions, Double confidence) {
+    /**
+     * Coerce a value that may be a string, number, array, or nested object into a single readable string.
+     */
+    private static String coerceText(JsonNode node) {
+        if (node == null || node.isNull() || node.isMissingNode()) {
+            return "";
+        }
+        if (node.isValueNode()) {
+            return node.asText();
+        }
+        if (node.isArray()) {
+            List<String> parts = new ArrayList<>();
+            for (JsonNode element : node) {
+                String text = coerceText(element);
+                if (!text.isBlank()) {
+                    parts.add(text);
+                }
+            }
+            return String.join("; ", parts);
+        }
+        // Object: prefer common descriptive keys, otherwise join all leaf values.
+        for (String key : new String[] {"summary", "description", "issue", "title", "text", "value"}) {
+            if (node.hasNonNull(key)) {
+                return node.get(key).asText();
+            }
+        }
+        List<String> parts = new ArrayList<>();
+        node.fields().forEachRemaining(entry -> {
+            String text = coerceText(entry.getValue());
+            if (!text.isBlank()) {
+                parts.add(text);
+            }
+        });
+        return String.join("; ", parts);
+    }
+
+    private static double coerceConfidence(JsonNode node) {
+        if (node == null || node.isNull() || node.isMissingNode()) {
+            return 0.5;
+        }
+        if (node.isNumber()) {
+            return node.asDouble();
+        }
+        if (node.isTextual()) {
+            try {
+                return Double.parseDouble(node.asText().trim());
+            } catch (NumberFormatException ex) {
+                return 0.5;
+            }
+        }
+        if (node.isObject()) {
+            for (String key : new String[] {"overall", "value", "score"}) {
+                if (node.hasNonNull(key) && node.get(key).isNumber()) {
+                    return node.get(key).asDouble();
+                }
+            }
+        }
+        return 0.5;
     }
 
     private record CopilotSdkRequest(String prompt, String model) {

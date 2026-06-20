@@ -16,6 +16,13 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VM_ADMIN_SSH_PRIVATE_KEY }}" > ~/.ssh/retrospective_vm
+          chmod 600 ~/.ssh/retrospective_vm
+          ssh-keygen -y -f ~/.ssh/retrospective_vm > ~/.ssh/retrospective_vm.pub
+
       - name: Ensure VM exists
         env:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -27,6 +34,7 @@ jobs:
           RESOURCE_GROUP="$AZURE_RESOURCE_GROUP" \
           LOCATION="$AZURE_LOCATION" \
           ADMIN_USERNAME="$VM_ADMIN_USERNAME" \
+          SSH_PUBLIC_KEY_PATH="$HOME/.ssh/retrospective_vm.pub" \
           infra/scripts/provision-vm.sh
 
       - name: Resolve VM public IP
@@ -41,12 +49,6 @@ jobs:
             --query "[0].virtualMachine.network.publicIpAddresses[0].ipAddress" \
             -o tsv)
           echo "ip=$VM_IP" >> "$GITHUB_OUTPUT"
-
-      - name: Prepare SSH key
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.VM_ADMIN_SSH_PRIVATE_KEY }}" > ~/.ssh/retrospective_vm
-          chmod 600 ~/.ssh/retrospective_vm
 
       - name: Deploy to VM
         env:

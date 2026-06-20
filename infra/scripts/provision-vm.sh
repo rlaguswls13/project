@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+INFRA_DIR=$(cd -- "${SCRIPT_DIR}/.." && pwd)
+
 RESOURCE_GROUP=${RESOURCE_GROUP:-retrospective-rg}
 LOCATION=${LOCATION:-koreacentral}
 VM_NAME=${VM_NAME:-retrospective-vm}
 ADMIN_USERNAME=${ADMIN_USERNAME:-azureuser}
 SSH_PUBLIC_KEY_PATH=${SSH_PUBLIC_KEY_PATH:-~/.ssh/id_rsa.pub}
 IMAGE=${IMAGE:-Ubuntu2204}
+CLOUD_INIT_PATH=${CLOUD_INIT_PATH:-${INFRA_DIR}/cloud-init.yaml}
 
 if ! az group show --name "$RESOURCE_GROUP" >/dev/null 2>&1; then
   az group create --name "$RESOURCE_GROUP" --location "$LOCATION"
@@ -19,6 +23,7 @@ if ! az vm show --resource-group "$RESOURCE_GROUP" --name "$VM_NAME" >/dev/null 
     --image "$IMAGE" \
     --admin-username "$ADMIN_USERNAME" \
     --ssh-key-values "$SSH_PUBLIC_KEY_PATH" \
+    --custom-data "$CLOUD_INIT_PATH" \
     --size Standard_B2s \
     --public-ip-sku Standard \
     --nsg-rule SSH \
