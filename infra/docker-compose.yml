@@ -9,6 +9,8 @@ services:
       COPILOT_GITHUB_TOKEN: ${COPILOT_GITHUB_TOKEN:-}
     ports:
       - '3001:3001'
+    networks:
+      - retro-net
     restart: unless-stopped
 
   backend:
@@ -25,6 +27,8 @@ services:
       - '8080:8080'
     depends_on:
       - copilot-sdk
+    networks:
+      - retro-net
     restart: unless-stopped
 
   frontend:
@@ -36,6 +40,8 @@ services:
       - '3000:3000'
     depends_on:
       - backend
+    networks:
+      - retro-net
     restart: unless-stopped
 
   nginx:
@@ -47,4 +53,10 @@ services:
     depends_on:
       - frontend
       - backend
+    networks:
+      - retro-net
     restart: unless-stopped
+
+networks:
+  retro-net:
+    driver: bridge
