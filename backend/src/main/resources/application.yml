@@ -33,8 +33,8 @@ management:
 app:
   github:
     api-base-url: https://api.github.com
-    owner: ${APP_GITHUB_OWNER:}
-    repo: ${APP_GITHUB_REPO:}
+    owner: ${APP_GITHUB_OWNER:rlaguswls13}
+    repo: ${APP_GITHUB_REPO:project}
     token: ${APP_GITHUB_TOKEN:}
   copilot:
     enabled: ${APP_COPILOT_ENABLED:false}
